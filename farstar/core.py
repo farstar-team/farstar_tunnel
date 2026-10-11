@@ -11,11 +11,13 @@ import re
 import secrets
 import socket
 import sqlite3
+import sys
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Literal
 
+import psutil
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -79,10 +81,27 @@ def port_available(port: int, kind: str = "tcp", host: str = "0.0.0.0") -> bool:
     family = socket.AF_INET6 if ':' in host else socket.AF_INET
     with socket.socket(family, socket.SOCK_DGRAM if kind == "udp" else socket.SOCK_STREAM) as sock:
         try:
-            # Never use SO_REUSEADDR: do not steal an existing listener on Windows.
+            # Start with an exclusive probe, including sockets bound but not listening.
             sock.bind((host, port))
             return True
         except OSError:
+            pass
+        # Linux leaves completed TCP connections in TIME_WAIT after stopping FRP.
+        # Permit reuse only when every visible conflicting connection is TIME_WAIT.
+        # Active services, UDP and Windows keep the conservative exclusive check.
+        if sys.platform != 'linux' or kind != 'tcp':
+            return False
+        wildcard = '::' if family == socket.AF_INET6 else '0.0.0.0'
+        try:
+            conflicts = [entry for entry in psutil.net_connections(kind='tcp')
+                         if entry.family == family and entry.laddr and entry.laddr.port == port
+                         and (host == wildcard or entry.laddr.ip in (host, wildcard))]
+            if not conflicts or any(entry.status != psutil.CONN_TIME_WAIT for entry in conflicts):
+                return False
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind((host, port))
+            return True
+        except (OSError, psutil.Error):
             return False
 
 

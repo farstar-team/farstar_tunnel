@@ -27,7 +27,8 @@ jobs:
           bash scripts/test_bootstrap.sh
       - name: Install into the disposable Ubuntu runner
         run: |
-          printf '%s\n' 'ci-disposable-password-2026' | sudo bash install.sh --role connector --host 127.0.0.1 --port 18443 --username ci.owner --password-stdin
+          curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/install.sh" -o /tmp/farstar-ci-install.sh
+          printf '%s\n' 'ci-disposable-password-2026' | sudo env FARSTAR_REF="$GITHUB_SHA" bash /tmp/farstar-ci-install.sh --role connector --host 127.0.0.1 --port 18443 --username ci.owner --password-stdin
           sudo systemctl is-active --quiet farstar-tunnel.service
           sudo /opt/farstar-tunnel/venv/bin/python scripts/installer_smoke.py
       - name: Ensure repeat installation preserves state

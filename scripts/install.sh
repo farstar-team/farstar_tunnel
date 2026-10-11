@@ -29,7 +29,7 @@ command -v systemctl >/dev/null || die 'systemd is required'
 [[ -d /run/systemd/system ]] || die 'systemd must be running'
 exec 9>/run/lock/farstar-tunnel.install.lock
 flock -n 9 || die 'Another Farstar installation is running'
-[[ ! -L $PREFIX && ! -L $DATA ]] || die 'Refusing a symlink at an installation path'
+[[ ! -L $PREFIX && ! -L $DATA && ! -L $UNIT ]] || die 'Refusing a symlink at an installation path'
 [[ ! -e $DATA && ! -e $UNIT ]] || die 'Previous state or service exists. It was preserved; see README for recovery.'
 if [[ -e $PREFIX ]]; then
   [[ -f $PREFIX/.installing && $(stat -c %u "$PREFIX/.installing") == 0 ]] || die 'Program already exists. It was preserved; see README for updates.'

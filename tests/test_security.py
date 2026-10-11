@@ -1,6 +1,7 @@
 import base64
 import json
 import socket
+import sys
 
 import pytest
 from pydantic import ValidationError
@@ -31,6 +32,31 @@ def test_occupied_port_is_never_reused():
         assert not port_available(port)
         service.listen()
         assert not port_available(port)
+
+
+@pytest.mark.skipif(sys.platform != 'linux', reason='Linux TCP TIME_WAIT behavior')
+def test_stopped_tcp_port_can_restart_without_reusing_active_services():
+    with socket.socket() as listener, socket.socket() as client:
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind(('127.0.0.1', 0))
+        port = listener.getsockname()[1]
+        listener.listen()
+        client.connect(('127.0.0.1', port))
+        accepted, _ = listener.accept()
+        accepted.close()  # Active close leaves the server side in TIME_WAIT.
+        assert client.recv(1) == b''
+        client.close()
+    assert port_available(port)
+    with socket.socket() as unrelated:
+        unrelated.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        unrelated.bind(('0.0.0.0', port))
+        unrelated.listen()
+        assert not port_available(port)
+        assert unrelated.fileno() >= 0
+    with socket.socket(type=socket.SOCK_DGRAM) as udp:
+        udp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        udp.bind(('0.0.0.0', 0))
+        assert not port_available(udp.getsockname()[1], 'udp')
 
 
 def test_target_is_restricted_to_local_services():
