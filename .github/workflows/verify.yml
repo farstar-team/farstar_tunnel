@@ -1,0 +1,42 @@
+name: Verify Ubuntu installation
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ubuntu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Test Python application with the real FRP engine
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -e '.[test]'
+          .venv/bin/python scripts/download_engine.py bin
+          .venv/bin/python -m pytest -q
+      - name: Check Bash and the one-command bootstrap
+        run: |
+          bash -n install.sh scripts/install.sh scripts/uninstall.sh scripts/test_bootstrap.sh
+          bash scripts/test_bootstrap.sh
+      - name: Install into the disposable Ubuntu runner
+        run: |
+          printf '%s\n' 'ci-disposable-password-2026' | sudo bash install.sh --role connector --host 127.0.0.1 --port 18443 --username ci.owner --password-stdin
+          sudo systemctl is-active --quiet farstar-tunnel.service
+          sudo /opt/farstar-tunnel/venv/bin/python scripts/installer_smoke.py
+      - name: Ensure repeat installation preserves state
+        run: |
+          if sudo bash install.sh --role connector --host 127.0.0.1 --port 18443 --username ci.owner --password-stdin </dev/null; then
+            echo 'Repeated installation must be rejected.'
+            exit 1
+          fi
+          sudo /opt/farstar-tunnel/venv/bin/python scripts/installer_smoke.py
+      - name: Show service diagnostics on failure
+        if: failure()
+        run: sudo journalctl -u farstar-tunnel.service --no-pager -n 80

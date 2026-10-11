@@ -1,0 +1,47 @@
+[Unit]
+Description=Farstar isolated tunnel panel
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=farstar-tunnel
+Group=farstar-tunnel
+WorkingDirectory=/var/lib/farstar-tunnel
+ExecStart=/opt/farstar-tunnel/venv/bin/farstar --data-dir /var/lib/farstar-tunnel --bin-dir /opt/farstar-tunnel/bin serve
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/farstar-tunnel
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryHigh=384M
+MemoryMax=512M
+CPUQuota=100%
+CPUWeight=25
+IOWeight=25
+TasksMax=256
+LimitNOFILE=16384
+OOMPolicy=stop
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+[Install]
+WantedBy=multi-user.target

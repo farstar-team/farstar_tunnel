@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b101b">
+  <title>Farstar — مدیریت تونل</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230c1525'/%3E%3Cpath d='M20 5l4 11 11 4-11 4-4 11-4-11-11-4 11-4z' fill='%235fe0c3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <div id="auth" class="auth-screen">
+    <div class="auth-brand"><span class="brand-mark">✦</span><span dir="ltr">FARSTAR<span class="brand-sub">TUNNEL</span></span></div>
+    <div class="auth-box"><span class="eyebrow">اتصال پایدار. کنترل کامل.</span><h1 id="auth-title">به پنل خوش آمدید</h1><p id="auth-description">برای مدیریت امن ارتباط سرورها وارد شوید.</p>
+      <form id="auth-form">
+        <label id="bootstrap-label" hidden>کد راه‌اندازی <input name="bootstrap_token" autocomplete="off" placeholder="کد نمایش‌داده‌شده پس از نصب" dir="ltr"></label>
+        <label>نام کاربری <input name="username" required minlength="3" maxlength="64" autocomplete="username" placeholder="admin" dir="ltr"></label>
+        <label>رمز عبور <input name="password" type="password" required maxlength="128" autocomplete="current-password" dir="ltr"></label>
+        <p id="auth-error" class="form-error" role="alert"></p><button class="button primary" type="submit" id="auth-submit">ورود به پنل <span>←</span></button>
+      </form><div class="auth-note"><span class="small-dot"></span> میزبانی روی سرور شما · بدون وابستگی به سرویس ابری</div>
+    </div><p class="auth-footer">Farstar Tunnel · <span id="auth-version" dir="ltr">v1.0.0</span></p>
+  </div>
+  <div id="app" class="shell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="#overview"><span class="brand-mark">✦</span><span dir="ltr">FARSTAR<span class="brand-sub">TUNNEL CONTROL</span></span></a>
+      <div class="workspace"><span class="node-symbol" data-icon="server"></span><div><strong id="node-name">سرور شما</strong><span id="node-role">سرور ورودی</span></div><span class="small-dot"></span></div>
+      <span class="nav-label">فضای مدیریت</span>
+      <nav aria-label="منوی اصلی">
+        <a href="#overview" data-page="overview"><span data-icon="grid"></span>نمای کلی<span class="nav-tail">01</span></a>
+        <a href="#tunnels" data-page="tunnels"><span data-icon="link"></span>تونل‌ها<span id="nav-count" class="count">0</span></a>
+        <a href="#nodes" data-page="nodes"><span data-icon="server"></span>سرورها</a>
+        <a href="#logs" data-page="logs"><span data-icon="terminal"></span>گزارش فعالیت</a>
+        <a href="#settings" data-page="settings"><span data-icon="settings"></span>تنظیمات</a>
+      </nav>
+      <div class="sidebar-bottom"><div class="isolation"><span data-icon="shield"></span><strong>اجرای مستقل</strong><p>بدون تغییر در فایروال و تنظیمات شبکهٔ سرور</p></div><div class="user"><span class="avatar">F</span><div><strong id="username">مدیر سیستم</strong><span>Administrator</span></div><button class="icon-button" id="logout" title="خروج" aria-label="خروج"><span data-icon="logout"></span></button></div><span class="build" dir="ltr">FARSTAR / v1.0.0</span></div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="breadcrumb">فضای مدیریت <span>/</span> <strong id="breadcrumb">نمای کلی</strong></div><div class="topbar-status"><span class="small-dot" id="refresh-dot"></span><span id="refresh-label">پایش زنده</span><span class="topbar-divider"></span><span id="clock"></span></div></header>
+      <div class="content"><div class="page-heading"><div><span class="eyebrow" id="page-eyebrow">NETWORK OVERVIEW</span><h1 id="page-title">همه‌چیز، در یک نگاه.</h1><p id="page-description">وضعیت ارتباط سرورها و عملکرد تونل‌ها را زنده دنبال کنید.</p></div><button class="button primary" id="primary-action"><span data-icon="plus"></span><span>تونل جدید</span></button></div>
+        <div id="connection-warning" class="notice warning" hidden></div>
+        <section id="page-overview" class="page">
+          <div class="stat-grid">
+            <article class="stat"><div class="stat-top"><span>تونل‌های متصل</span><span class="stat-icon mint" data-icon="link"></span></div><strong id="stat-online">۰ <small>/ ۰</small></strong><div class="stat-bottom"><span class="small-dot"></span><span id="stat-online-note">آمادهٔ ساخت اولین تونل</span></div></article>
+            <article class="stat"><div class="stat-top"><span>ترافیک دریافتی امروز</span><span class="stat-icon blue" data-icon="download"></span></div><strong id="stat-in" dir="ltr">0 <small>B</small></strong><div class="stat-bottom">دادهٔ ثبت‌شده توسط هسته</div></article>
+            <article class="stat"><div class="stat-top"><span>ترافیک ارسالی امروز</span><span class="stat-icon violet" data-icon="upload"></span></div><strong id="stat-out" dir="ltr">0 <small>B</small></strong><div class="stat-bottom">دادهٔ ثبت‌شده توسط هسته</div></article>
+            <article class="stat"><div class="stat-top"><span>اتصالات فعال</span><span class="stat-icon amber" data-icon="activity"></span></div><strong id="stat-connections">۰</strong><div class="stat-bottom"><span id="stat-peers">۰ سرور مقصد</span></div></article>
+          </div>
+          <div class="overview-middle"><article class="panel chart-panel"><div class="panel-heading"><div><h2>جریان ترافیک</h2><p>حجم TCP پس از پایان اتصال ثبت می‌شود</p></div><div class="chart-legend"><span><i class="legend-in"></i>دریافت</span><span><i class="legend-out"></i>ارسال</span><span class="tag">۳ دقیقهٔ اخیر</span></div></div><div class="chart-wrap"><div id="chart-labels" class="chart-labels"></div><svg id="traffic-chart" viewBox="0 0 800 160" role="img" aria-label="نمودار نرخ ثبت ترافیک هسته" preserveAspectRatio="none"></svg><div class="chart-times"><span>۳ دقیقه پیش</span><span>۲ دقیقه پیش</span><span>۱ دقیقه پیش</span><span>اکنون</span></div></div><div class="chart-footer"><span><span class="small-dot"></span> نمونه‌برداری هر ۳ ثانیه</span><span id="chart-rate" dir="ltr">↓ 0 B/s &nbsp; ↑ 0 B/s</span></div></article>
+            <article class="panel health-panel"><div class="panel-heading"><h2>سلامت سرور</h2><span class="tag">محلی</span></div><div class="health-row"><div><span>مصرف CPU</span><strong id="cpu-value" dir="ltr">0%</strong></div><progress id="cpu-progress" max="100" value="0"></progress></div><div class="health-row"><div><span>حافظهٔ کل سرور</span><strong id="memory-value" dir="ltr">0%</strong></div><progress id="memory-progress" max="100" value="0"></progress></div><div class="health-row"><div><span>فضای دیسک</span><strong id="disk-value" dir="ltr">0%</strong></div><progress id="disk-progress" max="100" value="0"></progress></div><div class="health-details"><span>حافظهٔ پنل و هسته‌ها<strong id="service-memory" dir="ltr">—</strong></span><span>زمان کارکرد پنل<strong id="uptime">—</strong></span></div></article>
+          </div>
+          <article class="panel"><div class="panel-heading"><div><h2>ارتباط سرورها</h2><p>مسیر داده از ورودی تا سرویس مقصد</p></div><a href="#nodes" class="text-link">مدیریت سرورها <span>←</span></a></div><div id="topology" class="topology"></div></article>
+          <article class="panel tunnel-panel"><div class="panel-heading"><div><h2>تونل‌های شما <span class="heading-count" id="overview-count">۰</span></h2><p>ارتباط‌های مستقل، قابل کنترل و رمزگذاری‌شده</p></div><a href="#tunnels" class="text-link">مشاهدهٔ همه <span>←</span></a></div><div id="overview-tunnels"></div></article>
+          <div class="bottom-caption"><span data-icon="shield"></span> هر تونل در یک پردازش مستقل اجرا می‌شود.<span class="caption-end" id="engine-label" dir="ltr">FRP 0.71.0 · TLS</span></div>
+        </section>
+        <section id="page-tunnels" class="page" hidden><div class="toolbar"><div class="search"><span data-icon="search"></span><input id="tunnel-search" placeholder="جست‌وجوی نام یا پورت تونل…" aria-label="جست‌وجوی تونل"></div><select id="tunnel-filter" aria-label="فیلتر وضعیت"><option value="all">همهٔ وضعیت‌ها</option><option value="online">متصل</option><option value="connecting">در حال اتصال</option><option value="stopped">متوقف</option><option value="error">خطا</option></select></div><article class="panel" id="all-tunnels"></article><div class="notice"><span data-icon="info"></span><div>در حالت خودکار، QUIC پس از ۲۰ ثانیه عدم اتصال به TCP/TLS برمی‌گردد. عملکرد نهایی به کیفیت شبکه و مسیر بین دو سرور بستگی دارد.</div></div></section>
+        <section id="page-nodes" class="page" hidden><div id="node-cards" class="node-grid"></div><article class="panel guide"><h2>اتصال دو سرور در سه مرحله</h2><ol><li><strong>نصب روی هر دو سرور</strong><span>در نصب، برای یکی نقش «ورودی» و برای دیگری نقش «مقصد» را انتخاب کنید.</span></li><li><strong>ساخت کد اتصال</strong><span>در پنل ورودی، «اتصال سرور» را بزنید؛ کد تا ۱۰ دقیقه معتبر و یک‌بارمصرف است.</span></li><li><strong>واردکردن کد در مقصد</strong><span>کد را در پنل مقصد وارد کنید؛ سپس تونل‌ها را از پنل ورودی بسازید.</span></li></ol><p>پورت پنل ورودی باید از سرور مقصد قابل دسترسی باشد. پورت‌های تونل را در فایروال ارائه‌دهندهٔ سرور، به انتخاب خود باز کنید.</p></article></section>
+        <section id="page-logs" class="page" hidden><article class="panel"><div class="panel-heading"><h2>رویدادهای مدیریت</h2><button class="button secondary small" id="refresh-logs"><span data-icon="refresh"></span>تازه‌سازی</button></div><div id="audit-log" class="log-list"></div></article><article class="panel"><div class="panel-heading"><h2>خروجی هستهٔ تونل‌ها</h2><span class="tag">۱۰۰ خط آخر هر تونل</span></div><div id="engine-logs"></div></article></section>
+        <section id="page-settings" class="page" hidden><div class="settings-grid"><article class="panel"><div class="panel-heading"><h2>مشخصات نصب</h2><span data-icon="server"></span></div><dl id="installation-info"></dl><div class="notice">گواهی اختصاصی این نصب، هویت سرور را هنگام اتصال دو پنل و تونل‌ها تأیید می‌کند.</div></article><article class="panel"><div class="panel-heading"><h2>تغییر رمز مدیر</h2><span data-icon="lock"></span></div><form id="password-form" class="padded-form"><label>رمز فعلی<input name="current" type="password" required autocomplete="current-password"></label><label>رمز جدید؛ حداقل ۱۲ کاراکتر<input name="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label><button class="button primary" type="submit">ذخیرهٔ رمز جدید</button></form></article></div><article class="panel"><div class="panel-heading"><div><h2>خروجی تنظیمات</h2><p>فهرست تنظیمات تونل‌ها؛ بدون رمز عبور و کلیدهای خصوصی</p></div><button class="button secondary" id="backup"><span data-icon="download"></span>دریافت JSON</button></div><div class="notice">این فایل برای ثبت تنظیمات است. برای بازیابی کامل، از پوشهٔ دادهٔ اختصاصی برنامه روی سرور نسخهٔ پشتیبان بگیرید.</div></article><article class="panel safety-panel"><h2>مرزهای اجرای برنامه</h2><div class="safety-grid"><div><span data-icon="shield"></span><strong>کاربر اختصاصی</strong><p>اجرای سرویس بدون دسترسی root</p></div><div><span data-icon="activity"></span><strong>سقف منابع</strong><p>محدودیت CPU، حافظه و تعداد پردازش</p></div><div><span data-icon="link"></span><strong>تنظیمات محلی</strong><p>بدون تغییر مسیر، فایروال و sysctl</p></div><div><span data-icon="check"></span><strong>بررسی قبل از اجرا</strong><p>تشخیص تداخل پورت و اعتبارسنجی FRP</p></div></div></article></section>
+      </div>
+    </main>
+  </div>
+  <dialog id="modal"><div class="modal-header"><div><span class="eyebrow" id="modal-eyebrow">FARSTAR CONTROL</span><h2 id="modal-title"></h2></div><button class="icon-button" id="close-modal" aria-label="بستن"><span data-icon="close"></span></button></div><div id="modal-body"></div></dialog>
+  <div id="toast" role="status" hidden></div>
+</body>
+</html>
